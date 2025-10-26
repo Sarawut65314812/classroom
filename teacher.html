@@ -6,7 +6,7 @@
 <title>Emoji Game Setup</title>
 <style>
 body { font-family:sans-serif; text-align:center; margin:10px; }
-input, button { font-size:16px; margin:5px; padding:5px; }
+input, button { font-size:16px; margin:5px; padding:5px; text-transform: lowercase; }
 textarea {
   font-size:16px; margin:5px; padding:5px; width:250px; height:120px; resize:none;
   border:1px solid #ccc; border-radius:5px;
@@ -18,6 +18,7 @@ textarea {
     #ccc 30px
   );
   line-height:30px;
+  text-transform: lowercase; /* พิมพ์อะไรก็เป็นตัวเล็ก */
 }
 button { cursor:pointer; }
 </style>
@@ -43,18 +44,25 @@ async function loadEmojiData() {
   }
 }
 
-// โหลด config เก่าถ้ามี
+// โหลด config เก่าถ้ามีและแปลงเป็นตัวเล็ก
 const savedConfig = JSON.parse(localStorage.getItem('emojiGameConfig')||'{}');
-if(savedConfig.categoryName) document.getElementById('categoryInput').value = savedConfig.categoryName;
-if(savedConfig.correct) document.getElementById('correctInput').value = savedConfig.correct.join('\n');
-if(savedConfig.wrong) document.getElementById('wrongInput').value = savedConfig.wrong.join('\n');
+if(savedConfig.categoryName) document.getElementById('categoryInput').value = savedConfig.categoryName.toLowerCase();
+if(savedConfig.correct) document.getElementById('correctInput').value = savedConfig.correct.map(w => w.toLowerCase()).join('\n');
+if(savedConfig.wrong) document.getElementById('wrongInput').value = savedConfig.wrong.map(w => w.toLowerCase()).join('\n');
 
 async function saveConfig(){
   await loadEmojiData();
 
-  const category = document.getElementById('categoryInput').value.trim();
-  const correct = document.getElementById('correctInput').value.split('\n').map(s=>s.trim()).filter(s=>s);
-  const wrong = document.getElementById('wrongInput').value.split('\n').map(s=>s.trim()).filter(s=>s);
+  // แปลงทุกคำเป็นตัวเล็ก
+  const category = document.getElementById('categoryInput').value.trim().toLowerCase();
+  const correct = document.getElementById('correctInput').value
+                  .split('\n')
+                  .map(s => s.trim().toLowerCase())
+                  .filter(s => s);
+  const wrong = document.getElementById('wrongInput').value
+                .split('\n')
+                .map(s => s.trim().toLowerCase())
+                .filter(s => s);
 
   if(!category){ alert("กรุณาใส่ชื่อหมวดหมู่"); return; }
   if(correct.length===0){ alert("กรุณาใส่คำที่ถูกต้องอย่างน้อย 1 คำ"); return; }
@@ -62,7 +70,7 @@ async function saveConfig(){
   // ตรวจสอบ emoji แบบ case-insensitive และตัดตัวเลขท้าย
   let missing = [];
   [...correct,...wrong].forEach(word=>{
-    const w = word.toLowerCase().replace(/\d+$/,'').trim(); // lowercase + ตัดเลขท้าย
+    const w = word.replace(/\d+$/,'').trim();
     const found = emojiData.find(e =>
       e.short_names.some(sn => sn.toLowerCase().replace(/\d+$/,'') === w)
     );
