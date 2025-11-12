@@ -655,6 +655,31 @@ button { cursor:pointer; }
     height: 96px !important;
   }
 }
+/* Final override: make colored panels size flexibly with .main-container
+   - Two columns when there's room, each using roughly half the container (minus gap)
+   - Collapse to full-width on small screens
+   - This comes last to override earlier fixed-percentage rules */
+@media (min-width: 768px) {
+  .main-container > div[style*="display:flex"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: center !important;
+  }
+  .main-container > div[style*="display:flex"] > div {
+    flex: 1 1 calc(50% - 12px) !important;
+    max-width: calc(50% - 12px) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+@media (max-width: 767px) {
+  .main-container > div[style*="display:flex"] > div {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    padding: 6px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -674,7 +699,7 @@ button { cursor:pointer; }
   <h3 style="margin-top:40px;">เพิ่มรูปภาพ</h3>
   <input id="mainTopicInput" placeholder="หัวข้อกิจกรรม/หมวดหมู่" style="max-width:500px; font-size:18px; padding:12px; border-radius:15px; margin-bottom:20px; background:#fff; border:2px solid #ccc; box-shadow:none; color:#333;"><br>
   <div style="display:flex; gap:5px; justify-content:center; margin-top:20px;">
-    <div style="flex:1; background:rgba(76, 175, 80, 0.1); padding:15px; border-radius:10px; border:2px solid #4CAF50;">
+  <div style="flex:1 1 calc(50% - 12px); max-width:calc(50% - 12px); background:rgba(76, 175, 80, 0.1); padding:12px; border-radius:10px; border:2px solid #4CAF50;">
       <label style="color:#4CAF50; font-weight:bold;">รูปที่ถูกต้อง ✅</label><br>
       <div class="file-input-wrapper" style="display: flex; justify-content: center; margin-top:10px;">
         <label class="file-input-label file-input-label-correct">เลือกภาพ
@@ -683,7 +708,7 @@ button { cursor:pointer; }
       </div>
       <div id="correctImagesList" style="margin-top:10px;"></div>
     </div>
-    <div style="flex:1; background:rgba(244, 67, 54, 0.1); padding:15px; border-radius:10px; border:2px solid #f44336;">
+  <div style="flex:1 1 calc(50% - 12px); max-width:calc(50% - 12px); background:rgba(244, 67, 54, 0.1); padding:12px; border-radius:10px; border:2px solid #f44336;">
       <label style="color:#f44336; font-weight:bold;">รูปที่ผิด ❌</label><br>
       <div class="file-input-wrapper" style="display: flex; justify-content: center; margin-top:10px;">
         <label class="file-input-label file-input-label-wrong">เลือกภาพ
