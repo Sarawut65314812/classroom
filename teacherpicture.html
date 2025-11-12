@@ -386,171 +386,34 @@ button { cursor:pointer; }
   }
 }
 
-/* iPad / large tablet adjustments (reduce size of the green/red panels) */
-/* apply on large tablets in both portrait and landscape explicitly */
-/* Special case: iPad portrait around 1023px becomes too narrow with smaller-panel rules.
-   Provide a gentler rule for widths up to 1024px so portrait doesn't look shrunk. */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+/* Tablet/iPad simplified rules (modeled after teachermatch.html)
+   - Keep it simple: a single tablet block that scales the main container and panels
+   - Avoid orientation-specific branches to reduce maintenance and flicker across devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .main-container {
+    max-width: 92vw !important;
+    width: 92vw !important;
+    padding: 12px !important;
+  }
   .main-container > div[style*="display:flex"] > div {
-    flex: 0 0 28% !important; /* match landscape width */
-    max-width: 28% !important;
-    padding: 6px !important;
-    margin: 6px !important;
+    flex: 1 1 calc(48% - 12px) !important;
+    max-width: calc(48% - 12px) !important;
+    padding: 10px !important;
     box-sizing: border-box !important;
   }
   .main-container > div[style*="display:flex"] {
-    gap: 10px !important;
+    gap: 12px !important;
     justify-content: center !important;
   }
-  /* make the inner area inside the red/green panels larger (user asked about contents inside frames) */
   .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-    max-width: 68% !important;
-    margin: 6px auto !important;
-  }
-  .main-container > div[style*="display:flex"] > div .file-input-label,
-  .main-container > div[style*="display:flex"] > div .file-input-label-correct,
-  .main-container > div[style*="display:flex"] > div .file-input-label-wrong {
-    padding: 7px 10px !important;
-    font-size: 13px !important;
-  }
-  .main-container > div[style*="display:flex"] > div .image-preview-item {
-    width: 64px !important;
-    height: 64px !important;
-    margin: 6px auto !important;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1365px) and (orientation: portrait) {
-  .main-container > div[style*="display:flex"] > div {
-    flex: 0 0 28% !important; /* match landscape width */
-    max-width: 28% !important;
-    padding: 6px !important; /* slightly reduced internal padding */
-    margin: 6px !important;
-    box-sizing: border-box !important;
-  }
-  .main-container > div[style*="display:flex"] {
-    gap: 10px !important;
-    justify-content: center !important;
-  }
-  /* Reduce inner content width so items inside the colored frames don't stretch too wide */
-  /* Reduce inner content width so items inside the colored frames don't stretch too wide */
-  .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-    max-width: 68% !important;
+    max-width: 72% !important;
     margin: 6px auto !important;
     display: block !important;
-    box-sizing: border-box !important;
-  }
-  .main-container > div[style*="display:flex"] > div .file-input-label,
-  .main-container > div[style*="display:flex"] > div .file-input-label-correct,
-  .main-container > div[style*="display:flex"] > div .file-input-label-wrong {
-    max-width: 100% !important;
-    display: inline-block !important;
-    padding: 7px 10px !important;
-    font-size: 13px !important;
   }
   .main-container > div[style*="display:flex"] > div .image-preview-item {
-    width: 64px !important;
-    height: 64px !important;
+    width: 88px !important;
+    height: 88px !important;
     margin: 6px auto !important;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1365px) and (orientation: landscape) {
-  .main-container > div[style*="display:flex"] > div {
-    flex: 0 0 28% !important; /* further reduced for landscape */
-    max-width: 28% !important;
-    padding: 6px !important; /* slightly reduced internal padding */
-    margin: 6px !important;
-    box-sizing: border-box !important;
-  }
-  .main-container > div[style*="display:flex"] {
-    gap: 10px !important;
-    justify-content: center !important;
-  }
-  /* Reduce inner content width so items inside the colored frames don't stretch too wide */
-  .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-    max-width: 68% !important;
-    margin: 6px auto !important;
-    display: block !important;
-    box-sizing: border-box !important;
-  }
-  .main-container > div[style*="display:flex"] > div .file-input-label,
-  .main-container > div[style*="display:flex"] > div .file-input-label-correct,
-  .main-container > div[style*="display:flex"] > div .file-input-label-wrong {
-    max-width: 100% !important;
-    display: inline-block !important;
-    padding: 7px 10px !important;
-    font-size: 13px !important;
-  }
-  .main-container > div[style*="display:flex"] > div .image-preview-item {
-    width: 64px !important;
-    height: 64px !important;
-    margin: 6px auto !important;
-  }
-}
-
-/* Safari on iPad specific: tighten gray frames and panels further for better visual fit */
-@supports (-webkit-touch-callout: none) {
-  /* Safari: make portrait <=1024px match the larger portrait sizing so iPad Safari isn't too small */
-  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .info-section, .main-container {
-      max-width: 86vw !important;
-      width: 86vw !important;
-      padding: 12px !important;
-    }
-    .main-container > div[style*="display:flex"] > div {
-      flex: 0 0 36% !important;
-      max-width: 36% !important;
-      padding: 8px !important;
-    }
-    .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-      max-width: 76% !important;
-    }
-    .main-container > div[style*="display:flex"] > div .image-preview-item {
-      width: 80px !important;
-      height: 80px !important;
-    }
-  }
-  /* Portrait iPad Safari */
-  @media (min-width: 768px) and (max-width: 1365px) and (orientation: portrait) {
-    .info-section, .main-container {
-      max-width: 82vw !important;
-      width: 82vw !important;
-      padding: 12px !important;
-    }
-    .main-container > div[style*="display:flex"] > div {
-      flex: 0 0 36% !important; /* match Safari landscape */
-      max-width: 36% !important;
-      padding: 8px !important;
-    }
-    .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-      max-width: 76% !important;
-    }
-    .image-preview-item {
-      width: 80px !important;
-      height: 80px !important;
-    }
-  }
-
-  /* Landscape iPad Safari */
-  @media (min-width: 768px) and (max-width: 1365px) and (orientation: landscape) {
-    .info-section, .main-container {
-      max-width: 80vw !important;
-      width: 80vw !important;
-      padding: 12px !important;
-    }
-    .main-container > div[style*="display:flex"] > div {
-      flex: 0 0 36% !important;
-      max-width: 36% !important;
-      padding: 8px !important;
-    }
-    .main-container > div[style*="display:flex"] > div .file-input-wrapper {
-      max-width: 76% !important;
-    }
-    .image-preview-item {
-      width: 80px !important;
-      height: 80px !important;
-    }
   }
 }
 @media (min-width: 1025px) {
