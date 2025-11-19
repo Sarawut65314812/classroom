@@ -7,314 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-* {
-  font-family: 'Roboto', sans-serif !important;
-}
-body {
-  text-align: center;
-  margin: 0;
-  padding: 20px;
-  position: relative;
-  min-height: 100vh;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  right: 0; 
-  bottom: 0;
-  background: linear-gradient(to bottom, #ebd09e 0%, #251f03 100%);
-  z-index: -1;
-}
-input, button { font-size:16px; margin:5px; padding:10px; text-transform: lowercase; border-radius:15px; border:2px solid #ccc; }
-textarea {
-  font-size:16px; margin:5px; padding:10px; width:250px; height:120px; resize:none;
-  border:2px solid #ccc; border-radius:15px;
-  background: repeating-linear-gradient(
-    to bottom,
-    #fff,
-    #fff 28px,
-    #ccc 28px,
-    #ccc 30px
-  );
-  line-height:30px;
-  text-transform: lowercase; /* พิมพ์อะไรก็เป็นตัวเล็ก */
-}
-button { cursor:pointer; }
-.image-preview-item {
-  display: inline-block;
-  margin: 10px;
-  position: relative;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  width: 120px;
-  height: 120px;
-  background: repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px;
-}
-.image-preview-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.image-preview-item .remove-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #f44336;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-}
-.file-input-wrapper {
-  position: relative;
-  display: inline-block;
-  margin: 10px;
-}
-.file-input-wrapper input[type=file] {
-  position: absolute;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-
-.neon-btn-green, .file-input-label {
-  background: linear-gradient(180deg, #57e167 0%, #57e167 45%, #57e167 55%, #57e167 100%);
-  color: #000000;
-  border: 6px solid #74640a;
-  border-radius: 9999px;
-  box-shadow: 1px 1px 0 #000, -8px 6px #3b3305, 0 0 20px rgba(255,230,160,0.55);
-  font-weight: 700;
-  font-size: clamp(1rem, 2vw, 1.5rem);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), 0 -1px 0 rgba(0, 0, 0, 0.1);
-  position: relative;
-  padding: clamp(14px, 2.5vw, 20px) clamp(35px, 5vw, 50px);
-  transform: translateZ(0);
-  transition: all 0.3s ease;
-  z-index: 10;
-  min-height: 55px;
-  display: inline-block;
-  cursor: pointer;
-}
-
-/* Neon Button Style */
-.neon-btn, .file-input-label {
-  background: linear-gradient(180deg, #f8f6f0 0%, #fffef8 45%, #fff8e8 55%, #f5f0e5 100%);
-  color: #000000;
-  border: 6px solid #74640a;
-  border-radius: 9999px;
-  box-shadow: 1px 1px 0 #000, -8px 6px #3b3305, 0 0 20px rgba(255,230,160,0.55);
-  font-weight: 700;
-  font-size: clamp(1rem, 2vw, 1.5rem);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), 0 -1px 0 rgba(0, 0, 0, 0.1);
-  position: relative;
-  padding: clamp(14px, 2.5vw, 20px) clamp(35px, 5vw, 50px);
-  transform: translateZ(0);
-  transition: all 0.3s ease;
-  z-index: 10;
-  min-height: 55px;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.neon-btn:hover, .file-input-label:hover {
-  transform: translateY(-2px);
-  box-shadow: 2px 2px 0 #000, -10px 8px #3b3305, 0 0 25px rgba(255,230,160,0.75);
-}
-
-.file-input-label {
-  padding: 10px 20px;
-  font-size: 16px;
-}
-.choice-item {
-  background: #f0f0f0;
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 5px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.choice-item button {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-/* Responsive Design */
-.info-inputs {
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-  margin: 10px 0 20px 0;
-  flex-wrap: wrap;
-}
-
-.info-inputs input {
-  width: 120px;
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 15px;
-}
-
-.info-inputs input:nth-child(1) {
-  width: 120px;
-}
-
-.info-inputs input:nth-child(2),
-.info-inputs input:nth-child(3),
-.info-inputs input:nth-child(4) {
-  width: 180px;
-}
-
-.main-container {
-  max-width: 900px;
-  width: 100%;
-  background: rgba(255,255,255,0.9);
-  padding: 20px;
-  border-radius: 10px;
-  border: 4px solid #74640a;
-  box-shadow: 0 0 15px rgba(255,230,160,0.5), 1px 1px 0 #000, -6px 4px #3b3305;
-}
-
-/* Mobile: < 768px */
-@media (max-width: 767px) {
-  body {
-    padding: 5px;
-  }
-  
-  h2 {
-    font-size: 18px;
-    margin: 10px 0;
-  }
-  
-  h3 {
-    font-size: 16px;
-    margin: 10px 0;
-  }
-  
-  .info-section {
-  padding: 10px 15px !important;
-  max-width: 91% !important;
-  width: 91% !important;
-    border: 3px solid #74640a !important;
-    box-sizing: border-box !important;
-    margin: 5px auto !important;
-  }
-  
-  .info-inputs {
-    gap: 3px;
-  }
-  
-  .info-inputs input {
-    width: calc(50% - 3px) !important;
-    font-size: 12px !important;
-    padding: 6px !important;
-    box-sizing: border-box;
-  }
-  
-  .main-container {
-    padding: 6px;
-    max-width: 85%;
-    width: 85%;
-    border: 3px solid #74640a;
-  }
-  
-  .main-container input {
-    font-size: 14px !important;
-    padding: 6px !important;
-    max-width: 100% !important;
-  }
-  
-  .main-container label {
-    font-size: 12px !important;
-  }
-  
-  .main-container > div[style*="display:flex"] {
-    flex-direction: column;
-    gap: 6px !important;
-  }
-  
-  .main-container > div[style*="display:flex"] > div {
-    width: calc(100% - 4px) !important;
-    padding: 6px !important;
-    box-sizing: border-box !important;
-    max-width: 100% !important;
-    margin: 0 2px !important;
-  }
-  
-  .main-container > div[style*="display:flex"] > div input {
-    max-width: calc(100% - 4px) !important;
-    width: calc(100% - 4px) !important;
-    box-sizing: border-box !important;
-  }
-  
-  .neon-btn, .neon-btn-green {
-    font-size: 12px !important;
-    padding: 6px 12px !important;
-    min-height: 35px !important;
-  }
-}
-
-/* Tablet: 768px - 1024px */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .info-inputs input:nth-child(1) {
-    width: 100px;
-  }
-  
-  .info-inputs input:nth-child(2),
-  .info-inputs input:nth-child(3),
-  .info-inputs input:nth-child(4) {
-    width: 150px;
-  }
-}
-
-/* Desktop: > 1024px */
-@media (min-width: 1025px) {
-  .info-inputs input:nth-child(1) {
-    width: 120px;
-  }
-  
-  .info-inputs input:nth-child(2),
-  .info-inputs input:nth-child(3),
-  .info-inputs input:nth-child(4) {
-    width: 180px;
-  }
-}
-
-.info-section {
-  background: rgba(255,255,255,0.9);
-  padding: 20px;
-  border-radius: 10px;
-  border: 4px solid #74640a;
-  box-shadow: 0 0 15px rgba(255,230,160,0.5), 1px 1px 0 #000, -6px 4px #3b3305;
-  margin-bottom: 20px;
-  max-width: 900px;
-  width: 100%;
-}
-
-.info-section h2 {
-  margin-top: 0;
-}
-</style>
+<link rel="stylesheet" href="css/teachermatch.css">
 </head>
 <body>
 
@@ -356,7 +49,23 @@ button { cursor:pointer; }
   <div id="questionsList" style="max-height:400px; overflow-y:auto;"></div>
 </div>
 
-<button class="neon-btn" onclick="saveConfig()" style="margin-top:20px;">เริ่มกิจกรรม</button>
+<!-- Control Buttons -->
+<div style="display: flex; justify-content: center; gap: 15px; margin: 20px auto; max-width: 900px; flex-wrap: wrap;">
+  <button class="neon-btn" onclick="saveConfig()" style="font-size: clamp(0.9rem, 1.8vw, 1.2rem); padding: 12px 25px;">🎮 เริ่มกิจกรรม</button>
+  <button class="neon-btn" onclick="saveActivity()" style="font-size: clamp(0.9rem, 1.8vw, 1.2rem); padding: 12px 25px;">💾 บันทึกกิจกรรม</button>
+  <button class="neon-btn" onclick="loadActivity()" style="font-size: clamp(0.9rem, 1.8vw, 1.2rem); padding: 12px 25px;">📂 เลือกกิจกรรม</button>
+</div>
+
+<!-- Activity Selection Modal -->
+<div id="activityModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: linear-gradient(135deg, #f8f6f0 0%, #ebd09e 100%); padding: 30px; border-radius: 20px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; border: 5px solid #74640a;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; color: #251f03;">📂 เลือกกิจกรรมที่บันทึกไว้</h2>
+      <button onclick="closeActivityModal()" style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px;">✖</button>
+    </div>
+    <div id="activityList"></div>
+  </div>
+</div>
 
 <script>
 let correctAnswers = [];
@@ -647,6 +356,186 @@ function saveConfig(){
   // เด้งไปหน้าเกม
   window.location.href='gamemath.html';
 }
+
+// ฟังก์ชันบันทึกกิจกรรม
+function saveActivity() {
+  const week = document.getElementById('weekInput').value.trim();
+  const topic = document.getElementById('topicInput').value.trim();
+  const unit = document.getElementById('unitInput').value.trim();
+  const teacher = document.getElementById('teacherInput').value.trim();
+
+  if(!week){ alert("กรุณากรอกสัปดาห์ที่"); return; }
+  if(!topic){ alert("กรุณากรอกสาระการเรียนรู้"); return; }
+  if(!unit){ alert("กรุณากรอกหน่วยการเรียนรู้"); return; }
+  if(!teacher){ alert("กรุณากรอกชื่อผู้รับผิดชอบ"); return; }
+  if(allQuestions.length === 0){ alert("กรุณาเพิ่มโจทย์อย่างน้อย 1 ข้อ"); return; }
+
+  let savedActivities = JSON.parse(localStorage.getItem('savedActivities') || '[]');
+  
+  // ตรวจสอบว่ากำลังแก้ไขกิจกรรมเดิมหรือไม่
+  if (window.editingActivityId) {
+    const activity = savedActivities.find(a => a.id === window.editingActivityId);
+    
+    if (activity) {
+      // อัพเดตข้อมูลกิจกรรมเดิม
+      activity.config = {
+        week: week,
+        topic: topic,
+        unit: unit,
+        teacher: teacher,
+        questions: allQuestions
+      };
+      activity.topic = topic;
+      activity.savedAtDisplay = new Date().toLocaleString('th-TH');
+      
+      localStorage.setItem('savedActivities', JSON.stringify(savedActivities));
+      
+      alert(`✅ อัพเดตกิจกรรม "${activity.name}" สำเร็จ!`);
+      
+      // ล้างสถานะการแก้ไข
+      delete window.editingActivityId;
+      delete window.editingActivityName;
+      return;
+    }
+  }
+  
+  // บันทึกกิจกรรมใหม่
+  const activityName = prompt('ตั้งชื่อกิจกรรม:', `${topic} - สัปดาห์ ${week}`);
+  
+  if (!activityName) return;
+  
+  const activity = {
+    id: Date.now(),
+    name: activityName,
+    type: 'math',
+    topic: topic,
+    config: {
+      week: week,
+      topic: topic,
+      unit: unit,
+      teacher: teacher,
+      questions: allQuestions
+    },
+    savedAt: new Date().toISOString(),
+    savedAtDisplay: new Date().toLocaleString('th-TH')
+  };
+  
+  savedActivities.push(activity);
+  localStorage.setItem('savedActivities', JSON.stringify(savedActivities));
+  
+  alert(`✅ บันทึกกิจกรรม "${activityName}" สำเร็จ!`);
+}
+
+// ฟังก์ชันโหลดกิจกรรม
+function loadActivity() {
+  const savedActivities = JSON.parse(localStorage.getItem('savedActivities') || '[]');
+  const mathActivities = savedActivities.filter(a => a.type === 'math');
+  
+  if (mathActivities.length === 0) {
+    alert('ยังไม่มีกิจกรรมที่บันทึกไว้');
+    return;
+  }
+  
+  const activityList = document.getElementById('activityList');
+  activityList.innerHTML = mathActivities.map(activity => `
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 3px solid #74640a; transition: transform 0.2s;" 
+         onmouseover="this.style.transform='scale(1.02)'"
+         onmouseout="this.style.transform='scale(1)'">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1; cursor: pointer;" onclick="selectActivity(${activity.id})">
+          <h3 style="margin: 0 0 8px 0; color: #333; font-size: 18px;">📚 ${activity.name}</h3>
+          <p style="margin: 4px 0; color: #666; font-size: 14px;">สาระ: ${activity.topic}</p>
+          <p style="margin: 4px 0; color: #999; font-size: 12px;">บันทึก: ${activity.savedAtDisplay}</p>
+          <p style="margin: 4px 0; color: #667eea; font-size: 14px; font-weight: 600;">จำนวนโจทย์: ${activity.config.questions?.length || 0} ข้อ</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button onclick="event.stopPropagation(); editActivity(${activity.id})" 
+                  style="background: #3498db; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 18px;">
+            ✏️
+          </button>
+          <button onclick="event.stopPropagation(); deleteActivity(${activity.id})" 
+                  style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 18px;">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('activityModal').style.display = 'flex';
+}
+
+// เลือกกิจกรรม
+function selectActivity(activityId) {
+  const savedActivities = JSON.parse(localStorage.getItem('savedActivities') || '[]');
+  const activity = savedActivities.find(a => a.id === activityId);
+  
+  if (!activity) {
+    alert('ไม่พบกิจกรรมนี้');
+    return;
+  }
+  
+  // โหลดข้อมูลลงในฟอร์ม
+  const config = activity.config;
+  document.getElementById('weekInput').value = config.week || '';
+  document.getElementById('topicInput').value = config.topic || '';
+  document.getElementById('unitInput').value = config.unit || '';
+  document.getElementById('teacherInput').value = config.teacher || '';
+  
+  allQuestions = config.questions || [];
+  renderQuestionsList();
+  
+  closeActivityModal();
+  
+  alert(`✅ โหลดกิจกรรล "${activity.name}" สำเร็จ!`);
+}
+
+// แก้ไขกิจกรรม
+function editActivity(activityId) {
+  const savedActivities = JSON.parse(localStorage.getItem('savedActivities') || '[]');
+  const activity = savedActivities.find(a => a.id === activityId);
+  
+  if (!activity) {
+    alert('ไม่พบกิจกรรมนี้');
+    return;
+  }
+  
+  // โหลดข้อมูลลงในฟอร์มเพื่อแก้ไข
+  const config = activity.config;
+  document.getElementById('weekInput').value = config.week || '';
+  document.getElementById('topicInput').value = config.topic || '';
+  document.getElementById('unitInput').value = config.unit || '';
+  document.getElementById('teacherInput').value = config.teacher || '';
+  
+  allQuestions = config.questions || [];
+  renderQuestionsList();
+  
+  // เก็บ ID กิจกรรมที่กำลังแก้ไข
+  window.editingActivityId = activityId;
+  window.editingActivityName = activity.name;
+  
+  closeActivityModal();
+  
+  // แจ้งเตือนว่ากำลังแก้ไข
+  alert(`📝 กำลังแก้ไขกิจกรรม "${activity.name}"\n\nแก้ไขข้อมูลได้เลย แล้วกด "💾 บันทึกกิจกรรม" เพื่ออัพเดต`);
+}
+
+// ลบกิจกรรม
+function deleteActivity(activityId) {
+  if (!confirm('ต้องการลบกิจกรรมนี้หรือไม่?')) return;
+  
+  let savedActivities = JSON.parse(localStorage.getItem('savedActivities') || '[]');
+  savedActivities = savedActivities.filter(a => a.id !== activityId);
+  localStorage.setItem('savedActivities', JSON.stringify(savedActivities));
+  
+  loadActivity();
+}
+
+// ปิด Modal
+function closeActivityModal() {
+  document.getElementById('activityModal').style.display = 'none';
+}
+
 </script>
 
 </body>

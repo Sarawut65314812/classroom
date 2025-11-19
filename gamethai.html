@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เกมภาษาไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/gamethai.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="game-header">
+    <div class="game-title">🇹🇭 เกมภาษาไทย</div>
+    <div class="game-subtitle" id="topicDisplay">กำลังโหลด...</div>
+  </div>
+
+  <div class="question-section" id="questionSection">
+    <div class="question-text" id="questionText">กำลังโหลดคำถาม...</div>
+    <div class="choices-container" id="choicesContainer"></div>
+  </div>
+
+  <div class="completion-screen" id="completionScreen">
+    <div class="completion-emoji">🎉</div>
+    <div class="completion-title">เยี่ยมมาก!</div>
+    <div class="percentage-circle" id="percentageDisplay">0%</div>
+    <div class="completion-score" id="completionScore">คะแนน: 0/0</div>
+    <div class="completion-buttons">
+      <button class="btn btn-primary" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
+      <button class="btn btn-secondary" onclick="window.location.href='teacherthai.html'">🏠 กลับหน้าหลัก</button>
+    </div>
+  </div>
+
+  <div class="score-board" id="scoreBoard">
+    <div class="score-item">
+      <div class="score-label">คำถามที่</div>
+      <div class="score-value" id="currentQuestion">0/0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">ถูก</div>
+      <div class="score-value" style="color: #27ae60;" id="correctCount">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">ผิด</div>
+      <div class="score-value" style="color: #e74c3c;" id="wrongCount">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup -->
+<div id="scorePopup">
+  <div class="popup-content">
+    <h2>📊 ผลคะแนน</h2>
+    <div style="margin: 20px 0;">
+      <p style="font-size: 1.1rem; color: #666; margin-bottom: 5px;">ชื่อผู้เล่น</p>
+      <p style="font-size: 1.5rem; font-weight: 700; color: #333;" id="playerNameDisplay">-</p>
+    </div>
+    <div style="margin: 20px 0;">
+      <p style="font-size: 1.1rem; color: #666; margin-bottom: 5px;">ผลการเล่น</p>
+      <p style="font-size: 1.8rem; font-weight: 700;" id="resultMessage">-</p>
+    </div>
+    <div style="margin: 20px 0;">
+      <p style="font-size: 1.1rem; color: #666; margin-bottom: 5px;">คะแนน</p>
+      <p style="font-size: 2.5rem; font-weight: 700; color: #764ba2;" id="finalScore">0/0</p>
+    </div>
+    <div class="popup-buttons">
+      <button class="circular-btn btn-playagain" onclick="playAgain()" title="เล่นอีกครั้ง">🔄</button>
+      <div style="position: relative;">
+        <button class="circular-btn btn-share" onclick="toggleShareMenu()" title="แชร์และบันทึก">🔗</button>
+        <div id="shareMenu" class="share-dropdown">
+          <div class="share-option share" onclick="shareResult()">
+            <span class="icon">🔗</span>
+            <span>แชร์</span>
+          </div>
+          <div class="share-option download" onclick="saveResult()">
+            <span class="icon">📥</span>
+            <span>ดาวน์โหลด</span>
+          </div>
+        </div>
+      </div>
+      <button class="circular-btn btn-close" onclick="closePopup()" title="ปิด">✖</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let teacherConfig = {};
+let currentQuestionIndex = 0;
+let correctAnswers = 0;
+let wrongAnswers = 0;
+let questions = [];
+
+// โหลดค่าจาก localStorage
+window.onload = function() {
+  const config = localStorage.getItem('thaiGameConfig');
+  if (!config) {
+    alert('ไม่พบข้อมูลกิจกรรม กรุณากลับไปสร้างกิจกรรมก่อน');
+    window.location.href = 'teacherthai.html';
+    return;
+  }
+  
+  teacherConfig = JSON.parse(config);
+  questions = shuffleArray([...teacherConfig.questions]);
+  
+  document.getElementById('topicDisplay').textContent = teacherConfig.topic || 'ภาษาไทย';
+  
+  // ขอชื่อผู้เล่น
+  const playerName = prompt('กรุณากรอกชื่อของคุณ:');
+  teacherConfig.playerName = playerName || 'ไม่ระบุชื่อ';
+  
+  loadQuestion();
+};
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function loadQuestion() {
+  if (currentQuestionIndex >= questions.length) {
+    showCompletion();
+    return;
+  }
+  
+  const question = questions[currentQuestionIndex];
+  document.getElementById('questionText').textContent = question.question;
+  document.getElementById('currentQuestion').textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+  document.getElementById('correctCount').textContent = correctAnswers;
+  document.getElementById('wrongCount').textContent = wrongAnswers;
+  
+  // สุ่มคำตอบ
+  const shuffledChoices = question.choices.map((choice, index) => ({
+    text: choice,
+    isCorrect: index === question.correctIndex
+  }));
+  
+  for (let i = shuffledChoices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledChoices[i], shuffledChoices[j]] = [shuffledChoices[j], shuffledChoices[i]];
+  }
+  
+  const container = document.getElementById('choicesContainer');
+  container.innerHTML = shuffledChoices.map((choice, index) => `
+    <button class="choice-btn choice-${index + 1}" onclick="selectChoice(${choice.isCorrect}, this)">
+      ${choice.text}
+    </button>
+  `).join('');
+}
+
+function selectChoice(isCorrect, button) {
+  const allButtons = document.querySelectorAll('.choice-btn');
+  allButtons.forEach(btn => btn.disabled = true);
+  
+  if (isCorrect) {
+    correctAnswers++;
+    button.classList.add('correct');
+  } else {
+    wrongAnswers++;
+    button.classList.add('wrong');
+    
+    // แสดงคำตอบที่ถูก
+    allButtons.forEach(btn => {
+      if (btn.textContent.trim() === questions[currentQuestionIndex].choices[0]) {
+        btn.classList.add('correct');
+      }
+    });
+  }
+  
+  setTimeout(() => {
+    currentQuestionIndex++;
+    loadQuestion();
+  }, 1500);
+}
+
+function showCompletion() {
+  document.getElementById('questionSection').style.display = 'none';
+  document.getElementById('scoreBoard').style.display = 'none';
+  document.getElementById('completionScreen').style.display = 'block';
+  
+  const percentage = Math.round((correctAnswers / questions.length) * 100);
+  document.getElementById('percentageDisplay').textContent = `${percentage}%`;
+  document.getElementById('completionScore').textContent = `คะแนน: ${correctAnswers}/${questions.length}`;
+  
+  // แสดง Popup
+  setTimeout(() => {
+    showScorePopup();
+  }, 500);
+}
+
+function showScorePopup() {
+  const popup = document.getElementById('scorePopup');
+  const percentage = Math.round((correctAnswers / questions.length) * 100);
+  
+  document.getElementById('playerNameDisplay').textContent = teacherConfig.playerName || 'ไม่ระบุชื่อ';
+  document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
+  
+  let resultText = '';
+  let resultColor = '';
+  
+  if (percentage >= 85) {
+    resultText = '🏆 ยอดเยี่ยม!';
+    resultColor = '#f39c12';
+  } else if (percentage >= 70) {
+    resultText = '👏 เก่งมาก!';
+    resultColor = '#27ae60';
+  } else if (percentage >= 50) {
+    resultText = '😊 ดีมาก!';
+    resultColor = '#3498db';
+  } else if (percentage >= 35) {
+    resultText = '💪 พยายามอีกนิด!';
+    resultColor = '#e67e22';
+  } else {
+    resultText = '📚 ลองใหม่นะ!';
+    resultColor = '#e74c3c';
+  }
+  
+  const resultElement = document.getElementById('resultMessage');
+  resultElement.textContent = resultText;
+  resultElement.style.color = resultColor;
+  
+  popup.style.display = 'flex';
+}
+
+function closePopup() {
+  document.getElementById('scorePopup').style.display = 'none';
+  document.getElementById('shareMenu').style.display = 'none';
+}
+
+function playAgain() {
+  location.reload();
+}
+
+function restartGame() {
+  currentQuestionIndex = 0;
+  correctAnswers = 0;
+  wrongAnswers = 0;
+  questions = shuffleArray([...teacherConfig.questions]);
+  
+  document.getElementById('questionSection').style.display = 'flex';
+  document.getElementById('scoreBoard').style.display = 'flex';
+  document.getElementById('completionScreen').style.display = 'none';
+  document.getElementById('scorePopup').style.display = 'none';
+  
+  loadQuestion();
+}
+
+function toggleShareMenu() {
+  const menu = document.getElementById('shareMenu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+async function shareResult() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const topic = teacherConfig.topic || 'ไม่ระบุ';
+    const playerName = teacherConfig.playerName || 'ไม่ระบุชื่อ';
+    const scoreText = `${correctAnswers}/${questions.length}`;
+    const resultMessage = document.getElementById('resultMessage').innerText;
+    const date = new Date();
+    const dateStr = date.toLocaleDateString('th-TH');
+    const timeStr = date.toLocaleTimeString('th-TH');
+    
+    // พื้นหลังขาว
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, 210, 297, 'F');
+    
+    // ส่วนหัว - กล่องสีม่วง
+    doc.setFillColor(93, 93, 180);
+    doc.roundedRect(15, 15, 180, 25, 5, 5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('รายงานผลการประเมิน', 105, 25, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Smart Classroom Learning System', 105, 33, { align: 'center' });
+    
+    // กล่องคะแนนและสถานะ
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(1);
+    doc.roundedRect(15, 50, 180, 35, 5, 5, 'S');
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(12);
+    doc.text('คะแนนที่ได้รับ', 105, 60, { align: 'center' });
+    
+    // คะแนนใหญ่
+    doc.setFontSize(32);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 180, 0);
+    doc.text(scoreText, 60, 77, { align: 'center' });
+    
+    // สถานะ
+    doc.setFillColor(255, 200, 100);
+    doc.roundedRect(120, 64, 70, 15, 3, 3, 'F');
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(resultMessage, 155, 74, { align: 'center' });
+    
+    // แถบเหลืองหัวข้อ
+    doc.setFillColor(255, 220, 130);
+    doc.rect(15, 95, 180, 10, 'F');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text('ครั้งที่ 1 - ' + topic, 20, 102);
+    
+    // กล่องข้อมูลครูผู้สอน
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(15, 110, 180, 45, 3, 3, 'S');
+    doc.setFillColor(240, 240, 255);
+    doc.rect(15, 110, 180, 8, 'F');
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 200);
+    doc.text('ข้อมูลครูผู้สอน', 105, 116, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    let yPos = 125;
+    
+    doc.text('ชื่นชมครั้ง:', 25, yPos);
+    doc.text('10', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('ระยะเวลาเล่น:', 25, yPos);
+    doc.text('ภาษาไทย', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('หน่วยการเรียน:', 25, yPos);
+    doc.text('4', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('ครูผู้สอบสอน:', 25, yPos);
+    doc.text(playerName, 170, yPos, { align: 'right' });
+    
+    // กล่องข้อมูลผู้เล่น
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(15, 165, 180, 35, 3, 3, 'S');
+    doc.setFillColor(240, 240, 255);
+    doc.rect(15, 165, 180, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 200);
+    doc.text('ข้อมูลผู้เล่น', 105, 171, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    yPos = 180;
+    doc.text('ชื่อผู้เล่น:', 25, yPos);
+    doc.text('-', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('วันที่:', 25, yPos);
+    doc.text(dateStr, 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('เวลา:', 25, yPos);
+    doc.text(timeStr, 170, yPos, { align: 'right' });
+    
+    // ส่วนท้าย
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('เอกสารนี้สร้างขึ้นอัตโนมัติโดยระบบจัดการเรียนการสอนอัจฉริยะ', 105, 225, { align: 'center' });
+    doc.text('Smart Classroom Learning Management System', 105, 230, { align: 'center' });
+    doc.text('สร้างเมื่อ ' + dateStr + ' เวลา ' + timeStr, 105, 235, { align: 'center' });
+    
+    // กล่องลายเซ็น
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text('ลายเซ็น', 150, 252);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(145, 255, 185, 255);
+    doc.setFontSize(8);
+    doc.text('ครูผู้สอนและผู้ตรวจ', 165, 260, { align: 'center' });
+    
+    // สร้าง PDF blob
+    const pdfBlob = doc.output('blob');
+    const fileName = `รายงานผลการประเมิน_${playerName}_${Date.now()}.pdf`;
+    
+    // ลองแชร์ PDF
+    if (navigator.share && navigator.canShare) {
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      const shareData = {
+        title: 'Game Result',
+        files: [file]
+      };
+      
+      if (navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        return;
+      }
+    }
+    
+    // ถ้าแชร์ไม่ได้ ให้ดาวน์โหลด
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✅ ดาวน์โหลดไฟล์ PDF แล้ว! สามารถนำไปแชร์ได้');
+    
+  } catch (error) {
+    console.error('Error sharing PDF:', error);
+    alert('ไม่สามารถแชร์ PDF ได้ กรุณาลองใหม่อีกครั้ง');
+  }
+}
+
+function saveResult() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const topic = teacherConfig.topic || 'ไม่ระบุ';
+    const playerName = teacherConfig.playerName || 'ไม่ระบุชื่อ';
+    const scoreText = `${correctAnswers}/${questions.length}`;
+    const resultMessage = document.getElementById('resultMessage').innerText;
+    const date = new Date();
+    const dateStr = date.toLocaleDateString('th-TH');
+    const timeStr = date.toLocaleTimeString('th-TH');
+    
+    // พื้นหลังขาว
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, 210, 297, 'F');
+    
+    // ส่วนหัว
+    doc.setFillColor(93, 93, 180);
+    doc.roundedRect(15, 15, 180, 25, 5, 5, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('รายงานผลการประเมิน', 105, 25, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Smart Classroom Learning System', 105, 33, { align: 'center' });
+    
+    // กล่องคะแนน
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(1);
+    doc.roundedRect(15, 50, 180, 35, 5, 5, 'S');
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(12);
+    doc.text('คะแนนที่ได้รับ', 105, 60, { align: 'center' });
+    
+    doc.setFontSize(32);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 180, 0);
+    doc.text(scoreText, 60, 77, { align: 'center' });
+    
+    doc.setFillColor(255, 200, 100);
+    doc.roundedRect(120, 64, 70, 15, 3, 3, 'F');
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(resultMessage, 155, 74, { align: 'center' });
+    
+    doc.setFillColor(255, 220, 130);
+    doc.rect(15, 95, 180, 10, 'F');
+    doc.setFontSize(10);
+    doc.text('ครั้งที่ 1 - ' + topic, 20, 102);
+    
+    // ข้อมูลครู
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(15, 110, 180, 45, 3, 3, 'S');
+    doc.setFillColor(240, 240, 255);
+    doc.rect(15, 110, 180, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 200);
+    doc.text('ข้อมูลครูผู้สอน', 105, 116, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    let yPos = 125;
+    doc.text('ชื่นชมครั้ง:', 25, yPos);
+    doc.text('10', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('ระยะเวลาเล่น:', 25, yPos);
+    doc.text('ภาษาไทย', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('หน่วยการเรียน:', 25, yPos);
+    doc.text('4', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('ครูผู้สอบสอน:', 25, yPos);
+    doc.text(playerName, 170, yPos, { align: 'right' });
+    
+    // ข้อมูลผู้เล่น
+    doc.roundedRect(15, 165, 180, 35, 3, 3, 'S');
+    doc.setFillColor(240, 240, 255);
+    doc.rect(15, 165, 180, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 100, 200);
+    doc.text('ข้อมูลผู้เล่น', 105, 171, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    yPos = 180;
+    doc.text('ชื่อผู้เล่น:', 25, yPos);
+    doc.text('-', 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('วันที่:', 25, yPos);
+    doc.text(dateStr, 170, yPos, { align: 'right' });
+    yPos += 8;
+    doc.text('เวลา:', 25, yPos);
+    doc.text(timeStr, 170, yPos, { align: 'right' });
+    
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('เอกสารนี้สร้างขึ้นอัตโนมัติโดยระบบจัดการเรียนการสอนอัจฉริยะ', 105, 225, { align: 'center' });
+    doc.text('Smart Classroom Learning Management System', 105, 230, { align: 'center' });
+    doc.text('สร้างเมื่อ ' + dateStr + ' เวลา ' + timeStr, 105, 235, { align: 'center' });
+    
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text('ลายเซ็น', 150, 252);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(145, 255, 185, 255);
+    doc.setFontSize(8);
+    doc.text('ครูผู้สอนและผู้ตรวจ', 165, 260, { align: 'center' });
+    
+    doc.save(`รายงานผลการประเมิน_${playerName}_${Date.now()}.pdf`);
+    alert('✅ บันทึกไฟล์ PDF สำเร็จ!');
+  } catch (error) {
+    console.error('Error creating PDF:', error);
+    alert('ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่อีกครั้ง');
+  }
+}
+</script>
+
+</body>
+</html>
